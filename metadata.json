@@ -1,0 +1,6 @@
+{
+  "name": "Global Visa Sponsorship Job Researcher & Alert Hub",
+  "description": "AI-powered job research and automated daily Gmail alerts for verified visa-sponsored roles in Business Analysis, Product Ownership, and Modernization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

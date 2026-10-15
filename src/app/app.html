@@ -1,0 +1,1130 @@
+<div class="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+
+  <!-- TOP HEADER -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between py-3 sm:h-16 gap-3 sm:gap-0">
+        
+        <!-- Brand & Candidate Identity -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white shadow-inner">
+            <span class="material-icons text-xl">travel_explore</span>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-extrabold text-lg tracking-tight">Global Visa Sponsorship</span>
+              <span class="bg-blue-500/20 text-blue-300 text-xs font-semibold px-2 py-0.5 rounded border border-blue-400/30">Researcher & Alert Hub</span>
+            </div>
+            <p class="text-xs text-slate-400">
+              Profile: <span class="text-white font-medium">Harsh Bhardwaj</span> • Technical BA / Product Owner / Legacy Modernization & GenAI
+            </p>
+          </div>
+        </div>
+
+        <!-- Right Side: Configured Email Badge, Auth & Quick Alert Action -->
+        <div class="flex items-center flex-wrap gap-2.5">
+          <!-- Configured Alert Target -->
+          <div class="flex items-center space-x-1.5 bg-slate-800/90 border border-slate-700/80 px-2.5 py-1.5 rounded-lg text-xs" title="Configured Daily Alert Destination">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-slate-400">Alerts to:</span>
+            <span class="font-mono text-slate-200 font-semibold">{{ alertsService.configuredEmail() }}</span>
+          </div>
+
+          <!-- Quick Trigger Daily Alert -->
+          <button
+            (click)="triggerAlertDispatch()"
+            class="inline-flex items-center space-x-1.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition shadow-sm cursor-pointer"
+            title="Dispatch daily alert email (includes confirmation dialog)">
+            <span class="material-icons text-sm">send</span>
+            <span>Send Daily Alert Now</span>
+          </button>
+
+          <!-- Google Auth State -->
+          @if (authService.currentUser(); as user) {
+            <div class="flex items-center space-x-2 bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-lg">
+              @if (user.photoURL) {
+                <img [src]="user.photoURL" alt="avatar" class="w-6 h-6 rounded-full" />
+              } @else {
+                <span class="material-icons text-slate-300 text-base">account_circle</span>
+              }
+              <div class="text-left hidden md:block">
+                <div class="text-xs font-medium text-white truncate max-w-[120px]">{{ user.displayName || 'Authorized User' }}</div>
+                <div class="text-[10px] text-emerald-400 flex items-center">
+                  <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-1"></span> Gmail API Ready
+                </div>
+              </div>
+              <button
+                (click)="handleLogout()"
+                class="text-slate-400 hover:text-rose-400 text-xs ml-1 transition"
+                title="Sign out">
+                <span class="material-icons text-sm">logout</span>
+              </button>
+            </div>
+          } @else {
+            <!-- Official GSI Button -->
+            <button
+              type="button"
+              (click)="handleGoogleSignIn()"
+              [disabled]="authService.isSigningIn()"
+              class="gsi-material-button">
+              <div class="gsi-material-button-state"></div>
+              <div class="gsi-material-button-content-wrapper flex items-center">
+                <div class="gsi-material-button-icon">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="display: block;">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                  </svg>
+                </div>
+                <span class="gsi-material-button-contents text-xs font-semibold">
+                  {{ authService.isSigningIn() ? 'Connecting...' : 'Sign in with Google' }}
+                </span>
+              </div>
+            </button>
+          }
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SUBHEADER / METRICS STRIP -->
+  <div class="bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center md:text-left">
+        
+        <div class="border-r border-slate-100 pr-4">
+          <div class="text-xs uppercase tracking-wider font-semibold text-slate-500">Active Verified Jobs</div>
+          <div class="text-xl font-bold text-slate-900 flex items-center justify-center md:justify-start space-x-1.5 mt-0.5">
+            <span>{{ jobsService.filteredJobs().length }}</span>
+            <span class="text-xs font-normal text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">100% Genuine</span>
+          </div>
+        </div>
+
+        <div class="border-r border-slate-100 pr-4">
+          <div class="text-xs uppercase tracking-wider font-semibold text-slate-500">Highest Skill Match</div>
+          <div class="text-xl font-bold text-blue-600 mt-0.5">96%</div>
+        </div>
+
+        <div class="border-r border-slate-100 pr-4">
+          <div class="text-xs uppercase tracking-wider font-semibold text-slate-500">Target Coverage</div>
+          <div class="text-xs font-medium text-slate-700 mt-1 truncate">
+            EU • UK • APAC • Middle East
+          </div>
+        </div>
+
+        <div>
+          <div class="text-xs uppercase tracking-wider font-semibold text-slate-500">Daily Deduplication</div>
+          <div class="text-xs font-semibold text-slate-800 mt-1 flex items-center justify-center md:justify-start">
+            <span class="w-2 h-2 rounded-full bg-blue-600 mr-1.5"></span>
+            <span>{{ alertsService.sentJobIds().size }} sent / {{ alertsService.newMatchingJobs().length }} new pending</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION TABS -->
+  <div class="bg-white border-b border-slate-200 sticky top-14 sm:top-16 z-20 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex space-x-1 sm:space-x-6 overflow-x-auto py-2 no-scrollbar">
+        
+        <button
+          (click)="setTab('matrix')"
+          [class.border-blue-600]="activeTab() === 'matrix'"
+          [class.text-blue-600]="activeTab() === 'matrix'"
+          [class.font-bold]="activeTab() === 'matrix'"
+          [class.border-transparent]="activeTab() !== 'matrix'"
+          [class.text-slate-600]="activeTab() !== 'matrix'"
+          class="flex items-center space-x-2 py-2 px-3 border-b-2 font-medium text-sm whitespace-nowrap hover:text-blue-600 transition cursor-pointer">
+          <span class="material-icons text-lg">format_list_bulleted</span>
+          <span>Live Jobs Table</span>
+          <span class="bg-slate-100 text-slate-700 text-xs px-1.5 py-0.5 rounded-full font-mono">{{ jobsService.filteredJobs().length }}</span>
+        </button>
+
+        <button
+          (click)="setTab('alerts')"
+          [class.border-blue-600]="activeTab() === 'alerts'"
+          [class.text-blue-600]="activeTab() === 'alerts'"
+          [class.font-bold]="activeTab() === 'alerts'"
+          [class.border-transparent]="activeTab() !== 'alerts'"
+          [class.text-slate-600]="activeTab() !== 'alerts'"
+          class="flex items-center space-x-2 py-2 px-3 border-b-2 font-medium text-sm whitespace-nowrap hover:text-blue-600 transition cursor-pointer">
+          <span class="material-icons text-lg">mark_email_read</span>
+          <span>Daily Gmail Alert Hub</span>
+          @if (alertsService.newMatchingJobs().length > 0) {
+            <span class="bg-emerald-100 text-emerald-800 text-xs px-1.5 py-0.5 rounded-full font-semibold">{{ alertsService.newMatchingJobs().length }} new</span>
+          }
+        </button>
+
+        <button
+          (click)="setTab('top10')"
+          [class.border-blue-600]="activeTab() === 'top10'"
+          [class.text-blue-600]="activeTab() === 'top10'"
+          [class.font-bold]="activeTab() === 'top10'"
+          [class.border-transparent]="activeTab() !== 'top10'"
+          [class.text-slate-600]="activeTab() !== 'top10'"
+          class="flex items-center space-x-2 py-2 px-3 border-b-2 font-medium text-sm whitespace-nowrap hover:text-blue-600 transition cursor-pointer">
+          <span class="material-icons text-lg">psychology</span>
+          <span>Top 10 Job Titles to Search</span>
+        </button>
+
+        <button
+          (click)="setTab('skills')"
+          [class.border-blue-600]="activeTab() === 'skills'"
+          [class.text-blue-600]="activeTab() === 'skills'"
+          [class.font-bold]="activeTab() === 'skills'"
+          [class.border-transparent]="activeTab() !== 'skills'"
+          [class.text-slate-600]="activeTab() !== 'skills'"
+          class="flex items-center space-x-2 py-2 px-3 border-b-2 font-medium text-sm whitespace-nowrap hover:text-blue-600 transition cursor-pointer">
+          <span class="material-icons text-lg">badge</span>
+          <span>Resume Skills Matrix</span>
+        </button>
+
+        <button
+          (click)="setTab('ai-evaluator')"
+          [class.border-blue-600]="activeTab() === 'ai-evaluator'"
+          [class.text-blue-600]="activeTab() === 'ai-evaluator'"
+          [class.font-bold]="activeTab() === 'ai-evaluator'"
+          [class.border-transparent]="activeTab() !== 'ai-evaluator'"
+          [class.text-slate-600]="activeTab() !== 'ai-evaluator'"
+          class="flex items-center space-x-2 py-2 px-3 border-b-2 font-medium text-sm whitespace-nowrap hover:text-blue-600 transition cursor-pointer">
+          <span class="material-icons text-lg">auto_awesome</span>
+          <span>Live AI Match Analyzer</span>
+        </button>
+
+      </nav>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: LIVE JOBS TABLE (RESEARCHER TABLE)   -->
+    <!-- ========================================== -->
+    @if (activeTab() === 'matrix') {
+      <div class="space-y-6">
+
+        <!-- Filters & Search Toolbar -->
+        <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+          <div class="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
+            
+            <!-- Search Input -->
+            <div class="relative flex-1">
+              <span class="material-icons absolute left-3 top-2.5 text-slate-400 text-lg">search</span>
+              <input
+                type="text"
+                [ngModel]="jobsService.searchQuery()"
+                (ngModelChange)="jobsService.searchQuery.set($event)"
+                placeholder="Search by role, company, skills (e.g. Payments, COBOL, SQL, GenAI, n8n)..."
+                class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50/50" />
+            </div>
+
+            <!-- Region Filter Chips -->
+            <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar">
+              <span class="text-xs font-semibold text-slate-500 mr-1">Region:</span>
+              @for (reg of ['All', 'EU', 'UK', 'APAC', 'Middle East']; track reg) {
+                <button
+                  (click)="jobsService.selectedRegion.set(reg)"
+                  [class.bg-blue-600]="jobsService.selectedRegion() === reg"
+                  [class.text-white]="jobsService.selectedRegion() === reg"
+                  [class.bg-slate-100]="jobsService.selectedRegion() !== reg"
+                  [class.text-slate-700]="jobsService.selectedRegion() !== reg"
+                  class="px-2.5 py-1 rounded-md text-xs font-medium hover:bg-slate-200 transition cursor-pointer">
+                  {{ reg }}
+                </button>
+              }
+            </div>
+
+            <!-- Sort By -->
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-semibold text-slate-500">Sort:</span>
+              <select
+                [ngModel]="jobsService.sortBy()"
+                (ngModelChange)="jobsService.sortBy.set($event)"
+                class="text-xs border border-slate-300 rounded-md py-1.5 px-2 bg-white text-slate-700 font-medium focus:ring-2 focus:ring-blue-500">
+                <option value="match">Highest Skill Match %</option>
+                <option value="recent">Most Recently Posted</option>
+                <option value="company">Company Name (A-Z)</option>
+              </select>
+            </div>
+
+          </div>
+
+          <!-- Secondary Filter Row: Category & Toggles -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+            
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-xs font-semibold text-slate-500 mr-1">Category:</span>
+              @for (cat of ['All', 'Business Analysis', 'Product Ownership', 'Legacy Modernization', 'AI & Automation', 'Delivery & Governance']; track cat) {
+                <button
+                  (click)="jobsService.selectedCategory.set(cat)"
+                  [class.bg-slate-900]="jobsService.selectedCategory() === cat"
+                  [class.text-white]="jobsService.selectedCategory() === cat"
+                  [class.bg-slate-100]="jobsService.selectedCategory() !== cat"
+                  [class.text-slate-600]="jobsService.selectedCategory() !== cat"
+                  class="px-2.5 py-0.5 rounded text-xs font-medium hover:bg-slate-200 transition cursor-pointer">
+                  {{ cat }}
+                </button>
+              }
+            </div>
+
+            <div class="flex items-center space-x-4">
+              <!-- Last 7 Days Toggle -->
+              <label class="flex items-center space-x-2 cursor-pointer text-xs font-medium text-slate-700">
+                <input
+                  type="checkbox"
+                  [checked]="jobsService.onlyLast7Days()"
+                  (change)="jobsService.onlyLast7Days.set(!jobsService.onlyLast7Days())"
+                  class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer" />
+                <span>Posted within last 7 days</span>
+              </label>
+
+              <!-- Niche Roles Toggle -->
+              <label class="flex items-center space-x-2 cursor-pointer text-xs font-medium text-amber-800 bg-amber-50 px-2 py-1 rounded border border-amber-200">
+                <input
+                  type="checkbox"
+                  [checked]="jobsService.onlyNicheRoles()"
+                  (change)="jobsService.onlyNicheRoles.set(!jobsService.onlyNicheRoles())"
+                  class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer" />
+                <span>Niche Modernization & AI Roles only</span>
+              </label>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- THE MANDATED JOB RESEARCHER TABLE -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+          
+          <div class="p-4 bg-slate-900 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <div>
+              <h2 class="font-bold text-base flex items-center space-x-2">
+                <span>Verified Visa Sponsorship Jobs Matrix</span>
+                <span class="bg-blue-600 text-xs px-2 py-0.5 rounded-full font-mono">{{ jobsService.filteredJobs().length }} Roles</span>
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Strict verification: only active jobs with verified sponsorship, relocation support, or work permit eligibility are listed.
+              </p>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+              <button
+                (click)="triggerAlertDispatch()"
+                class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center space-x-1 transition cursor-pointer">
+                <span class="material-icons text-sm">email</span>
+                <span>Send via Gmail Alert</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr class="bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                  <th class="py-3.5 px-4 font-bold">Company</th>
+                  <th class="py-3.5 px-4 font-bold">Role</th>
+                  <th class="py-3.5 px-4 font-bold">Country</th>
+                  <th class="py-3.5 px-3 font-bold text-center">Skill Match %</th>
+                  <th class="py-3.5 px-4 font-bold">Visa / Relocation Evidence</th>
+                  <th class="py-3.5 px-4 font-bold">Salary (If Available)</th>
+                  <th class="py-3.5 px-4 font-bold text-right">Direct Job Link</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 text-slate-800">
+                @for (job of jobsService.filteredJobs(); track job.id) {
+                  <tr class="hover:bg-blue-50/40 transition group">
+                    
+                    <!-- 1. Company -->
+                    <td class="py-3.5 px-4 font-bold text-slate-900 whitespace-nowrap">
+                      <div class="flex items-center space-x-2">
+                        <div class="w-7 h-7 rounded-lg bg-slate-800 text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs">
+                          {{ job.company.charAt(0) }}
+                        </div>
+                        <div>
+                          <div class="font-bold text-slate-900">{{ job.company }}</div>
+                          <div class="text-[11px] font-normal text-slate-500">{{ job.city }}</div>
+                        </div>
+                      </div>
+                    </td>
+
+                    <!-- 2. Role -->
+                    <td class="py-3.5 px-4 max-w-xs">
+                      <div class="font-semibold text-slate-900 leading-snug group-hover:text-blue-600 transition">
+                        {{ job.role }}
+                      </div>
+                      <div class="flex items-center space-x-1.5 mt-1 flex-wrap gap-y-1">
+                        <span class="inline-block bg-slate-100 text-slate-700 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-200">
+                          {{ job.category }}
+                        </span>
+                        @if (job.isNicheRole) {
+                          <span class="inline-block bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 rounded border border-amber-300">
+                            Niche Match
+                          </span>
+                        }
+                        <span class="text-[11px] text-slate-400">
+                          Posted {{ job.postedDaysAgo === 0 ? 'Today' : job.postedDaysAgo + 'd ago' }}
+                        </span>
+                      </div>
+                      <!-- Quick skill tags match snippet -->
+                      <div class="text-[11px] text-slate-500 mt-1.5 flex items-center gap-1 flex-wrap">
+                        <span class="font-medium text-slate-600">Matched:</span>
+                        @for (skill of job.matchedSkills.slice(0, 4); track skill) {
+                          <span class="bg-blue-50 text-blue-700 px-1.5 py-0.2 rounded text-[10px] border border-blue-100">
+                            {{ skill }}
+                          </span>
+                        }
+                        @if (job.matchedSkills.length > 4) {
+                          <button (click)="jobsService.selectJob(job)" class="text-blue-600 hover:underline text-[10px] font-medium cursor-pointer">
+                            +{{ job.matchedSkills.length - 4 }} more
+                          </button>
+                        }
+                      </div>
+                    </td>
+
+                    <!-- 3. Country -->
+                    <td class="py-3.5 px-4 whitespace-nowrap">
+                      <div class="flex items-center space-x-1.5">
+                        <span class="material-icons text-slate-400 text-sm">place</span>
+                        <span class="font-medium text-slate-800">{{ job.country }}</span>
+                      </div>
+                      <span class="text-[11px] text-slate-500 ml-5 font-mono">({{ job.region }})</span>
+                    </td>
+
+                    <!-- 4. Skill Match % -->
+                    <td class="py-3.5 px-3 text-center whitespace-nowrap">
+                      <div class="inline-flex flex-col items-center">
+                        <div
+                          [class.bg-emerald-100]="job.skillMatchPct >= 94"
+                          [class.text-emerald-800]="job.skillMatchPct >= 94"
+                          [class.border-emerald-300]="job.skillMatchPct >= 94"
+                          [class.bg-blue-100]="job.skillMatchPct >= 90 && job.skillMatchPct < 94"
+                          [class.text-blue-800]="job.skillMatchPct >= 90 && job.skillMatchPct < 94"
+                          [class.border-blue-300]="job.skillMatchPct >= 90 && job.skillMatchPct < 94"
+                          [class.bg-slate-100]="job.skillMatchPct < 90"
+                          [class.text-slate-800]="job.skillMatchPct < 90"
+                          [class.border-slate-300]="job.skillMatchPct < 90"
+                          class="font-black text-sm px-2.5 py-1 rounded-md border shadow-2xs">
+                          {{ job.skillMatchPct }}%
+                        </div>
+                        <button
+                          (click)="jobsService.selectJob(job)"
+                          class="text-[10px] text-blue-600 hover:underline mt-1 font-medium cursor-pointer">
+                          View details
+                        </button>
+                      </div>
+                    </td>
+
+                    <!-- 5. Visa/Relocation Evidence -->
+                    <td class="py-3.5 px-4 text-xs max-w-sm">
+                      <div class="font-bold text-slate-900 flex items-center space-x-1">
+                        <span class="material-icons text-emerald-600 text-sm">verified</span>
+                        <span>{{ job.visaType }}</span>
+                      </div>
+                      <p class="text-slate-600 mt-1 line-clamp-2 leading-relaxed">
+                        {{ job.visaRelocationEvidence }}
+                      </p>
+                    </td>
+
+                    <!-- 6. Salary If Available -->
+                    <td class="py-3.5 px-4 text-xs whitespace-nowrap">
+                      @if (job.salary) {
+                        <div class="font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 inline-block">
+                          {{ job.salary }}
+                        </div>
+                      } @else {
+                        <span class="text-slate-400 italic">Competitive / Disclosed in Interview</span>
+                      }
+                    </td>
+
+                    <!-- 7. Direct Job Link -->
+                    <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                      <a
+                        [href]="job.directJobLink"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center space-x-1 bg-slate-900 hover:bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition shadow-2xs cursor-pointer">
+                        <span>Direct Apply</span>
+                        <span class="material-icons text-xs">launch</span>
+                      </a>
+                    </td>
+
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          @if (jobsService.filteredJobs().length === 0) {
+            <div class="p-12 text-center text-slate-500">
+              <span class="material-icons text-4xl text-slate-300">search_off</span>
+              <p class="mt-2 text-base font-semibold">No active jobs matching current filter combination.</p>
+              <button
+                (click)="jobsService.searchQuery.set(''); jobsService.selectedRegion.set('All'); jobsService.selectedCategory.set('All'); jobsService.onlyLast7Days.set(false); jobsService.onlyNicheRoles.set(false);"
+                class="mt-3 text-sm text-blue-600 hover:underline font-medium cursor-pointer">
+                Reset filters
+              </button>
+            </div>
+          }
+
+        </div>
+
+      </div>
+    }
+
+    <!-- ========================================== -->
+    <!-- TAB 2: DAILY GMAIL ALERT HUB               -->
+    <!-- ========================================== -->
+    @if (activeTab() === 'alerts') {
+      <div class="space-y-6">
+
+        <!-- Gmail Integration Header Card -->
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white p-6 rounded-2xl shadow-md border border-slate-700">
+          <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div>
+              <div class="inline-flex items-center space-x-1.5 bg-blue-500/20 text-blue-300 text-xs font-bold px-2.5 py-1 rounded-full border border-blue-400/30 mb-2">
+                <span class="material-icons text-sm">schedule</span>
+                <span>Automated Daily Digest</span>
+              </div>
+              <h2 class="text-xl sm:text-2xl font-bold">Gmail Daily Alert Dispatcher</h2>
+              <p class="text-slate-300 text-sm mt-1 max-w-2xl">
+                Configured destination: <span class="text-white font-mono font-bold">{{ alertsService.configuredEmail() }}</span>.
+                Every day at scheduled scan, verified matching jobs posted within the last 7 days are emailed to you.
+                Duplicate jobs from previous alerts are strictly excluded. If no new jobs are found, a brief zero-duplicate confirmation is sent.
+              </p>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+              <button
+                (click)="triggerAlertDispatch()"
+                class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center space-x-2 transition shadow cursor-pointer">
+                <span class="material-icons text-base">send</span>
+                <span>Send Alert Now (Test / Trigger)</span>
+              </button>
+
+              <button
+                (click)="alertsService.resetSentHistory()"
+                class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3.5 py-2.5 rounded-xl text-xs font-medium border border-slate-700 transition cursor-pointer"
+                title="Clears sent IDs history for testing duplicate exclusion">
+                <span>Reset Sent History</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Status notice -->
+          @if (alertsService.lastAlertStatus(); as status) {
+            <div class="mt-4 p-3 bg-blue-900/60 border border-blue-500/40 rounded-xl text-xs text-blue-200 flex items-center space-x-2">
+              <span class="material-icons text-sm text-blue-400">info</span>
+              <span>{{ status }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Deduplication Status & Preview Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <!-- Left 1/3: Deduplication Engine Status -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+            <h3 class="font-bold text-slate-900 text-base flex items-center space-x-2">
+              <span class="material-icons text-blue-600 text-lg">filter_alt</span>
+              <span>Deduplication Engine</span>
+            </h3>
+
+            <div class="space-y-3 text-xs">
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div class="text-slate-500">Unnotified Jobs Pending:</div>
+                <div class="text-2xl font-bold text-slate-900 mt-0.5">
+                  {{ alertsService.newMatchingJobs().length }} <span class="text-xs font-normal text-slate-500">roles</span>
+                </div>
+                <div class="text-[11px] text-emerald-600 mt-1">Ready for next daily batch</div>
+              </div>
+
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div class="text-slate-500">Already Sent Jobs (Cached):</div>
+                <div class="text-2xl font-bold text-slate-900 mt-0.5">
+                  {{ alertsService.sentJobIds().size }} <span class="text-xs font-normal text-slate-500">roles</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-1">Never resent in daily alerts</div>
+              </div>
+
+              <div class="p-3 bg-blue-50 rounded-lg border border-blue-200 text-slate-700 leading-relaxed">
+                <strong>Zero-Spam Guarantee:</strong> If 0 new jobs are found when the daily trigger runs, the system dispatches the required notice stating: <em>"No new matching jobs found today"</em> without repeating past roles.
+              </div>
+            </div>
+          </div>
+
+          <!-- Right 2/3: Live HTML Email Preview -->
+          <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+            
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base flex items-center space-x-2">
+                  <span class="material-icons text-emerald-600 text-lg">visibility</span>
+                  <span>Email Content Preview</span>
+                </h3>
+                <p class="text-xs text-slate-500">Exact HTML template dispatched to {{ alertsService.configuredEmail() }}</p>
+              </div>
+
+              <!-- Switch between New Jobs vs No Matches Preview -->
+              <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg text-xs font-medium">
+                <button
+                  (click)="emailPreviewType.set('withJobs')"
+                  [class.bg-white]="emailPreviewType() === 'withJobs'"
+                  [class.text-blue-600]="emailPreviewType() === 'withJobs'"
+                  [class.shadow-2xs]="emailPreviewType() === 'withJobs'"
+                  class="px-2.5 py-1 rounded cursor-pointer">
+                  New Matches Format
+                </button>
+                <button
+                  (click)="emailPreviewType.set('noJobs')"
+                  [class.bg-white]="emailPreviewType() === 'noJobs'"
+                  [class.text-blue-600]="emailPreviewType() === 'noJobs'"
+                  [class.shadow-2xs]="emailPreviewType() === 'noJobs'"
+                  class="px-2.5 py-1 rounded cursor-pointer">
+                  No New Matches Format
+                </button>
+              </div>
+            </div>
+
+            <!-- Email Mock Window -->
+            <div class="border border-slate-200 rounded-lg overflow-hidden bg-slate-50">
+              <div class="bg-slate-200 px-4 py-2 text-xs text-slate-700 border-b border-slate-300 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                  <span class="w-3 h-3 rounded-full bg-rose-400 inline-block"></span>
+                  <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
+                  <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+                  <span class="font-mono text-slate-600 ml-2">Inbox Preview • Gmail</span>
+                </div>
+                <span class="text-[11px] text-slate-500">To: {{ alertsService.configuredEmail() }}</span>
+              </div>
+
+              <div class="p-4 max-h-[360px] overflow-y-auto bg-white">
+                @if (emailPreviewType() === 'withJobs') {
+                  <div [innerHTML]="alertsService.generateEmailHtml(alertsService.configuredEmail(), alertsService.newMatchingJobs().length > 0 ? alertsService.newMatchingJobs() : jobsService.allJobs().slice(0, 4), false)"></div>
+                } @else {
+                  <div [innerHTML]="alertsService.generateEmailHtml(alertsService.configuredEmail(), [], true)"></div>
+                }
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Alert Dispatch History Table -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="p-4 bg-slate-100 border-b border-slate-200 flex justify-between items-center">
+            <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+              <span class="material-icons text-slate-600 text-base">history</span>
+              <span>Daily Alert Execution Log</span>
+            </h3>
+            <span class="text-xs text-slate-500 font-mono">{{ alertsService.alertLogs().length }} events recorded</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase">
+                <tr>
+                  <th class="py-2.5 px-4">Date / Time</th>
+                  <th class="py-2.5 px-4">Recipient</th>
+                  <th class="py-2.5 px-4">Subject</th>
+                  <th class="py-2.5 px-3 text-center">Jobs Included</th>
+                  <th class="py-2.5 px-4">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-700">
+                @for (log of alertsService.alertLogs(); track log.id) {
+                  <tr>
+                    <td class="py-3 px-4 font-mono text-slate-500 whitespace-nowrap">
+                      {{ log.sentAt | date:'medium' }}
+                    </td>
+                    <td class="py-3 px-4 font-medium text-slate-900">
+                      {{ log.recipientEmail }}
+                    </td>
+                    <td class="py-3 px-4 max-w-sm truncate text-slate-800 font-medium">
+                      {{ log.subject }}
+                    </td>
+                    <td class="py-3 px-3 text-center font-bold">
+                      <span class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded">
+                        {{ log.jobsCount }}
+                      </span>
+                    </td>
+                    <td class="py-3 px-4">
+                      @if (log.status === 'sent') {
+                        <span class="inline-flex items-center space-x-1 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold border border-emerald-200">
+                          <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                          <span>Delivered</span>
+                        </span>
+                      } @else if (log.status === 'no_new_jobs_sent') {
+                        <span class="inline-flex items-center space-x-1 text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full font-semibold border border-blue-200">
+                          <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                          <span>Zero Duplicates Sent</span>
+                        </span>
+                      } @else {
+                        <span class="inline-flex items-center space-x-1 text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full font-semibold border border-rose-200">
+                          <span>Failed</span>
+                        </span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    }
+
+    <!-- ========================================== -->
+    <!-- TAB 3: TOP 10 JOB TITLES RECOMMENDATIONS   -->
+    <!-- ========================================== -->
+    @if (activeTab() === 'top10') {
+      <div class="space-y-6">
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+          <div class="max-w-3xl">
+            <h2 class="text-xl font-bold text-slate-900">Top 10 Job Titles to Search For</h2>
+            <p class="text-sm text-slate-600 mt-1">
+              Curated specifically for Harsh Bhardwaj by analyzing your unique hybrid profile across 
+              <strong>Business Analysis, Core Banking Modernization (COBOL/Mainframe), Payments, GenAI, and Agile Governance</strong>.
+              Use these specialized titles to avoid generic crowds and target high-sponsorship visa sponsors.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          @for (item of jobsService.top10JobTitles(); track item.rank) {
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs hover:border-blue-400 transition flex flex-col justify-between">
+              
+              <div>
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center font-mono">
+                      #{{ item.rank }}
+                    </span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-blue-600">
+                      {{ item.category }}
+                    </span>
+                  </div>
+                </div>
+
+                <h3 class="font-bold text-base text-slate-900 mt-2 leading-snug">
+                  {{ item.title }}
+                </h3>
+
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                  {{ item.whyItFits }}
+                </p>
+
+                <!-- Matched Skills -->
+                <div class="mt-3">
+                  <div class="text-[11px] font-semibold text-slate-400 uppercase">Core Resume Skills Aligned:</div>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    @for (s of item.topMatchedSkills; track s) {
+                      <span class="bg-slate-100 text-slate-700 text-[11px] font-medium px-2 py-0.5 rounded">
+                        {{ s }}
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Target Regions -->
+                <div class="mt-3 text-xs text-slate-600 flex items-center space-x-1">
+                  <span class="material-icons text-slate-400 text-sm">public</span>
+                  <span class="font-medium text-slate-700">Target Geographies:</span>
+                  <span class="text-slate-600">{{ item.targetRegions.join(' • ') }}</span>
+                </div>
+              </div>
+
+              <!-- One-Click Search Query Copy -->
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                <span class="text-[11px] font-mono text-slate-500 truncate max-w-[280px]">
+                  {{ item.sampleSearchQuery }}
+                </span>
+                <button
+                  (click)="copyToClipboard(item.sampleSearchQuery, item.title)"
+                  class="inline-flex items-center space-x-1 text-xs text-blue-600 hover:text-blue-800 font-semibold bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded transition cursor-pointer">
+                  <span class="material-icons text-xs">content_copy</span>
+                  <span>Copy Boolean</span>
+                </button>
+              </div>
+
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+    <!-- ========================================== -->
+    <!-- TAB 4: RESUME SKILLS MATRIX               -->
+    <!-- ========================================== -->
+    @if (activeTab() === 'skills') {
+      <div class="space-y-6">
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+          <div class="max-w-3xl">
+            <h2 class="text-xl font-bold text-slate-900">Candidate Technical Profile Breakdown</h2>
+            <p class="text-sm text-slate-600 mt-1">
+              Extracted directly from your submitted resume skills. These 7 core competencies drive your 90%+ match score across verified global visa opportunities.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          @for (pillar of jobsService.candidateProfile.primaryPillars; track pillar.name) {
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
+              <div class="flex items-center space-x-2 border-b border-slate-100 pb-2">
+                <span class="material-icons text-blue-600 text-lg">check_circle</span>
+                <h3 class="font-bold text-sm text-slate-900">{{ pillar.name }}</h3>
+              </div>
+
+              <div class="flex flex-wrap gap-1.5">
+                @for (skill of pillar.skills; track skill) {
+                  <span class="bg-slate-50 text-slate-800 text-xs font-medium px-2 py-1 rounded border border-slate-200 hover:border-blue-300 transition">
+                    {{ skill }}
+                  </span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+    <!-- ========================================== -->
+    <!-- TAB 5: LIVE AI ROLE EVALUATOR (GEMINI 3.8) -->
+    <!-- ========================================== -->
+    @if (activeTab() === 'ai-evaluator') {
+      <div class="space-y-6">
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+          <div class="max-w-3xl">
+            <h2 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+              <span class="material-icons text-blue-600">auto_awesome</span>
+              <span>Instant AI Job Match Evaluator</span>
+            </h2>
+            <p class="text-sm text-slate-600 mt-1">
+              Found another job posting online? Paste the job description below to benchmark it against your exact resume skills using Gemini 3.8 Flash. Get instant match %, strength alignment, gap analysis, and visa sponsorship probability.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- Left: Input Form -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+            <div>
+              <label for="evalJobTitle" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Job Title</label>
+              <input
+                id="evalJobTitle"
+                type="text"
+                [(ngModel)]="evalJobTitle"
+                placeholder="e.g. Senior Technical Business Analyst"
+                class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+
+            <div>
+              <label for="evalCompany" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Company & Location</label>
+              <input
+                id="evalCompany"
+                type="text"
+                [(ngModel)]="evalCompany"
+                placeholder="e.g. Monzo Bank (London, UK)"
+                class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+
+            <div>
+              <label for="evalJobDesc" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Job Description Text</label>
+              <textarea
+                id="evalJobDesc"
+                [(ngModel)]="evalJobDescription"
+                rows="8"
+                placeholder="Paste the requirements, responsibilities, or entire job post text here..."
+                class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+            </div>
+
+            <button
+              (click)="runAiEvaluation()"
+              [disabled]="isEvaluating()"
+              class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-300 text-white font-bold py-2.5 px-4 rounded-xl text-sm flex items-center justify-center space-x-2 transition cursor-pointer">
+              <span class="material-icons text-base">auto_awesome</span>
+              <span>{{ isEvaluating() ? 'Evaluating Candidate Fit...' : 'Run Gemini Fit Analysis' }}</span>
+            </button>
+
+            @if (evalError(); as err) {
+              <div class="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700">
+                {{ err }}
+              </div>
+            }
+          </div>
+
+          <!-- Right: AI Evaluation Result -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+            <h3 class="font-bold text-slate-900 text-base border-b border-slate-100 pb-2">Analysis Results</h3>
+
+            @if (isEvaluating()) {
+              <div class="p-12 text-center text-slate-500 space-y-3">
+                <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <div class="text-sm font-semibold">Benchmarking role requirements against your resume...</div>
+              </div>
+            } @else if (evalResult(); as res) {
+              <div class="space-y-4 text-xs">
+                
+                <!-- Match Score Badge -->
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <div>
+                    <div class="text-slate-500 text-[11px] uppercase font-bold">Estimated Skill Match</div>
+                    <div class="text-2xl font-black text-blue-600">{{ res.matchScore }}%</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="font-semibold text-slate-800">{{ res.verdict }}</div>
+                  </div>
+                </div>
+
+                <!-- Visa Assessment -->
+                <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                  <div class="font-bold text-emerald-900 text-xs flex items-center space-x-1">
+                    <span class="material-icons text-sm">verified</span>
+                    <span>Visa Sponsorship Assessment</span>
+                  </div>
+                  <p class="text-emerald-800 mt-1 leading-relaxed">{{ res.visaEvidenceAnalysis }}</p>
+                </div>
+
+                <!-- Matched Skills -->
+                <div>
+                  <div class="font-bold text-slate-800 mb-1">Strongly Aligned Skills:</div>
+                  <div class="flex flex-wrap gap-1">
+                    @for (s of res.matchedSkills; track s) {
+                      <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-100">
+                        {{ s }}
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Gaps -->
+                @if (res.gaps?.length) {
+                  <div>
+                    <div class="font-bold text-amber-900 mb-1">Areas to Clarify / Potential Gaps:</div>
+                    <ul class="list-disc list-inside text-slate-600 space-y-0.5">
+                      @for (gap of res.gaps; track gap) {
+                        <li>{{ gap }}</li>
+                      }
+                    </ul>
+                  </div>
+                }
+
+                <!-- Tips -->
+                @if (res.interviewTips?.length) {
+                  <div>
+                    <div class="font-bold text-slate-800 mb-1">Application & Interview Tip:</div>
+                    <ul class="list-disc list-inside text-slate-600 space-y-0.5">
+                      @for (tip of res.interviewTips; track tip) {
+                        <li>{{ tip }}</li>
+                      }
+                    </ul>
+                  </div>
+                }
+
+              </div>
+            } @else {
+              <div class="p-12 text-center text-slate-400">
+                <span class="material-icons text-3xl">psychology</span>
+                <p class="mt-2 text-xs">Enter a job description on the left and click "Run Gemini Fit Analysis" to view detailed breakdown.</p>
+              </div>
+            }
+
+          </div>
+
+        </div>
+
+      </div>
+    }
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MANDATORY CONFIRMATION DIALOG MODAL (WORKSPACE SKILL)   -->
+  <!-- ======================================================== -->
+  @if (alertsService.isConfirmDialogOpen()) {
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+        
+        <div class="flex items-center space-x-3 text-blue-600 border-b border-slate-100 pb-3">
+          <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+            <span class="material-icons text-blue-600 text-xl">mark_email_read</span>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg text-slate-900">Confirm Sending Job Alert via Gmail</h3>
+            <p class="text-xs text-slate-500">Explicit user confirmation required before email transmission</p>
+          </div>
+        </div>
+
+        @if (alertsService.pendingAlertData(); as data) {
+          <div class="space-y-3 text-xs text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="flex justify-between">
+              <span class="text-slate-500">Destination:</span>
+              <span class="font-mono font-bold text-slate-900">{{ data.recipient }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Subject:</span>
+              <span class="font-medium text-slate-900 truncate max-w-[260px]">{{ data.subject }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Jobs Included:</span>
+              <span class="font-bold text-blue-600">
+                {{ data.isNoNewMatches ? '0 (Notice of zero duplicate jobs)' : data.jobsToSend.length + ' verified new matches' }}
+              </span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Deduplication:</span>
+              <span class="text-emerald-700 font-semibold">Active (avoids repeat jobs)</span>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-600 leading-relaxed">
+            By clicking <strong>"Confirm & Send via Gmail"</strong>, an email message will be sent from your authorized Google account to <strong>{{ data.recipient }}</strong>.
+          </p>
+        }
+
+        <div class="flex items-center justify-end space-x-3 pt-2">
+          <button
+            type="button"
+            (click)="cancelSendEmail()"
+            [disabled]="alertsService.isSending()"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition cursor-pointer">
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            (click)="confirmSendEmail()"
+            [disabled]="alertsService.isSending()"
+            class="bg-blue-600 hover:bg-blue-500 disabled:bg-slate-300 text-white font-bold text-xs px-5 py-2.5 rounded-xl flex items-center space-x-1.5 transition shadow cursor-pointer">
+            @if (alertsService.isSending()) {
+              <span class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>Sending...</span>
+            } @else {
+              <span class="material-icons text-sm">send</span>
+              <span>Confirm & Send via Gmail</span>
+            }
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- JOB DETAIL MODAL                                        -->
+  <!-- ======================================================== -->
+  @if (jobsService.activeJob(); as job) {
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto space-y-5">
+        
+        <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+          <div>
+            <div class="text-xs font-bold text-blue-600 uppercase">{{ job.company }} • {{ job.city }}, {{ job.country }}</div>
+            <h3 class="text-lg font-bold text-slate-900 mt-0.5">{{ job.role }}</h3>
+          </div>
+          <button
+            (click)="jobsService.selectJob(null)"
+            class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition cursor-pointer">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <!-- Metric highlights -->
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
+            <div class="text-[11px] text-blue-600 font-bold uppercase">Skill Match</div>
+            <div class="text-xl font-black text-blue-700 mt-0.5">{{ job.skillMatchPct }}%</div>
+          </div>
+          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+            <div class="text-[11px] text-emerald-600 font-bold uppercase">Visa Proof</div>
+            <div class="text-xs font-bold text-emerald-800 mt-1 truncate">{{ job.visaType }}</div>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div class="text-[11px] text-slate-500 font-bold uppercase">Compensation</div>
+            <div class="text-xs font-bold text-slate-800 mt-1 truncate">{{ job.salary || 'Competitive' }}</div>
+          </div>
+        </div>
+
+        <!-- Description Summary -->
+        <div>
+          <h4 class="text-xs font-bold uppercase text-slate-400 mb-1">Role Mission</h4>
+          <p class="text-xs text-slate-700 leading-relaxed">{{ job.descriptionSummary }}</p>
+        </div>
+
+        <!-- Visa Evidence -->
+        <div class="p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-1">
+          <div class="text-xs font-bold text-emerald-900 flex items-center space-x-1">
+            <span class="material-icons text-emerald-600 text-sm">verified_user</span>
+            <span>Verified Sponsorship / Relocation Details:</span>
+          </div>
+          <p class="text-xs text-emerald-800 leading-relaxed">{{ job.visaRelocationEvidence }}</p>
+        </div>
+
+        <!-- Matched Skills From Your Resume -->
+        <div>
+          <h4 class="text-xs font-bold uppercase text-slate-400 mb-2">Matched Skills from Harsh's Profile:</h4>
+          <div class="flex flex-wrap gap-1.5">
+            @for (s of job.matchedSkills; track s) {
+              <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-md border border-blue-200">
+                {{ s }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Key Strategic Strengths -->
+        <div>
+          <h4 class="text-xs font-bold uppercase text-slate-400 mb-1">Why You Stand Out as a Candidate:</h4>
+          <ul class="list-disc list-inside text-xs text-slate-700 space-y-1">
+            @for (str of job.keyStrengths; track str) {
+              <li>{{ str }}</li>
+            }
+          </ul>
+        </div>
+
+        <!-- Bottom Action -->
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-xs text-slate-400">Posted {{ job.postedDate }} ({{ job.postedDaysAgo }}d ago)</span>
+          <a
+            [href]="job.directJobLink"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl flex items-center space-x-1.5 transition shadow cursor-pointer">
+            <span>Apply Directly at {{ job.company }}</span>
+            <span class="material-icons text-sm">launch</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- TOAST NOTIFICATION -->
+  @if (toastMessage(); as msg) {
+    <div class="fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-xl shadow-xl flex items-center space-x-2 border border-slate-700 z-50 animate-in fade-in slide-in-from-bottom-2 duration-150">
+      <span class="material-icons text-emerald-400 text-sm">check_circle</span>
+      <span>{{ msg }}</span>
+    </div>
+  }
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <div>Global Visa Sponsorship Job Researcher • Configured for Harsh Bhardwaj</div>
+      <div class="font-mono text-slate-400">Targeting UK • EU (DE/NL/ES) • APAC (SG/AU) • Middle East (UAE)</div>
+    </div>
+  </footer>
+
+</div>
